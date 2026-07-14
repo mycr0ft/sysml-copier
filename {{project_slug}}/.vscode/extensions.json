@@ -1,0 +1,9 @@
+{
+    "recommendations": [
+        "sensmetry.sysml-2ls",
+        "ms-python.python",
+        "ms-toolsai.jupyter",
+        "jebbs.plantuml",
+        "ms-python.mypy-type-checker"
+    ]
+}

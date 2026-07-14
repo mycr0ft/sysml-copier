@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python {% raw %}${{ matrix.python-version }}{% endraw %}
+        uses: actions/setup-python@v5
+        with:
+          python-version: {% raw %}${{ matrix.python-version }}{% endraw %}
+
+      - name: Install hatch
+        run: pip install hatch
+
+      - name: Create environment
+        run: hatch env create
+
+      - name: Lint SysML models
+        run: hatch run check
+
+      - name: Check SysML formatting
+        run: hatch run format-check
+
+      - name: Semantic analysis
+        run: hatch run analyze
+
+      - name: Run tests
+        run: hatch run test
+
+      - name: Build documentation
+        run: hatch run docs

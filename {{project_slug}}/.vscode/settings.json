@@ -1,0 +1,25 @@
+{
+    "files.associations": {
+        "*.sysml": "sysml",
+        "*.kerml": "sysml"
+    },
+    "syside.standardLibraryPath": "./sysml/sysml.library",
+    "python.defaultInterpreterPath": ".venv/default/bin/python",
+    "python.terminal.activateEnvironment": true,
+    "[sysml]": {
+        "editor.tabSize": 4,
+        "editor.insertSpaces": true,
+        "editor.formatOnSave": false
+    },
+    "[python]": {
+        "editor.tabSize": 4,
+        "editor.insertSpaces": true,
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    },
+    "plantuml.render": "Local",
+    "plantuml.jar": "",
+    "plantuml.files": [
+        "output/**/*.puml"
+    ]
+}

@@ -1,0 +1,119 @@
+# Copier template: SysML v2 project scaffold
+# Usage: copier copy /path/to/sysml-copier /path/to/destination
+
+_templates_suffix: ""
+_jinja_extensions:
+  - jinja2_time.TimeExtension
+_exclude:
+  - "/README.md"
+  - "/LICENSE"
+  - "/.gitignore"
+  - "/copier.yml"
+  - "/copier.yaml"
+  - "/.git"
+  - "/.git/*"
+
+author:
+  type: str
+  default: "Your Name"
+  help: "Full name for copyright and author metadata"
+
+email:
+  type: str
+  default: "example@example.com"
+  help: "Email for author metadata"
+
+github_username:
+  type: str
+  default: "example"
+  help: "GitHub username (for repo URL)"
+
+project_name:
+  type: str
+  default: "my-project"
+  help: "Human-readable project name"
+
+project_slug:
+  type: str
+  default: "{{ project_name|lower|replace(' ', '_')|replace('-', '_') }}"
+  help: "Python package name (snake_case, must be a valid Python identifier)"
+  validator: |
+    {% if not project_slug %}
+    project_slug must not be empty
+    {% elif not (project_slug[0].isalpha() or project_slug[0] == '_') %}
+    project_slug '{{ project_slug }}' must start with a letter or underscore
+    {% elif not project_slug.replace('_', '').isalnum() %}
+    project_slug '{{ project_slug }}' must contain only letters, digits, and underscores
+    {% endif %}
+
+project_short_description:
+  type: str
+  default: "A SysML v2 model with textual notation, Python automation, and Jupyter visualization."
+  help: "One-line project description"
+
+repo_url:
+  type: str
+  default: "https://github.com/{{ github_username|lower }}/{{ project_slug }}"
+  help: "Repository URL"
+
+license:
+  type: str
+  choices:
+    - MIT
+    - Apache-2.0
+    - GPL-3.0
+    - proprietary
+  default: MIT
+  help: "License for the generated project (MIT, Apache-2.0, GPL-3.0, or proprietary)"
+
+sysml_naming_convention:
+  type: str
+  choices:
+    - strict
+    - relaxed
+  default: strict
+  help: "sysml-style naming convention (strict: enforce CamelCase; relaxed: allow quoted names)"
+
+_tasks:
+  - "cp {{ project_slug }}/licenses/{{ license }}.txt {{ project_slug }}/LICENSE && rm -rf {{ project_slug }}/licenses"
+  - |
+    echo ""
+    echo "============================================================"
+    echo "  Successfully created project: {{ project_slug }}"
+    echo "============================================================"
+    echo ""
+    echo "Next steps:"
+    echo ""
+    echo "  cd {{ project_slug }}"
+    echo ""
+    echo "  # Install dependencies (including sysmlpy and sysml-style)"
+    echo "  hatch install"
+    echo ""
+    echo "  # Install pre-commit hooks"
+    echo "  pre-commit install"
+    echo ""
+    echo "  # Lint your SysML models"
+    echo "  hatch run check"
+    echo ""
+    echo "  # Format your SysML models"
+    echo "  hatch run format"
+    echo ""
+    echo "  # Run semantic analysis on your models"
+    echo "  hatch run analyze"
+    echo ""
+    echo "  # Run tests"
+    echo "  hatch run test"
+    echo ""
+    echo "  # Serve documentation site"
+    echo "  hatch run serve"
+    echo ""
+    echo "  # Open the example notebook for model exploration"
+    echo "  hatch run jupyter lab notebooks/model_exploration.ipynb"
+    echo ""
+    {% if license == 'proprietary' %}
+    echo "  NOTE: You chose 'proprietary' license."
+    echo "  Review the LICENSE file and add your organization's terms."
+    echo ""
+    {% endif %}
+    echo "See docs/developing.md for the full development guide."
+    echo ""

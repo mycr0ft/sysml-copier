@@ -1,0 +1,100 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "{{ project_name }}"
+dynamic = ["version"]
+description = "{{ project_short_description }}"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "{{ license }}"
+keywords = ["sysml", "sysmlv2", "mbse", "systems-engineering"]
+authors = [
+  { name = "{{ author }}", email = "{{ email }}" },
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: Implementation :: CPython",
+]
+dependencies = [
+  "sysmlpy>=0.35.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "sysml-style>=0.3.7",
+  "pytest>=8.0",
+  "mypy>=1.0.0",
+  "pre-commit",
+  "mkdocs-material>=9.5",
+  "pygments-sysml @ git+https://github.com/mycr0ft/pygments-sysml.git@main",
+]
+
+[project.urls]
+Documentation = "{{ repo_url }}#readme"
+Issues = "{{ repo_url }}/issues"
+Source = "{{ repo_url }}"
+
+[tool.hatch.version]
+path = "src/{{ project_slug }}/__about__.py"
+
+[tool.hatch.envs.default]
+dependencies = [
+  "sysmlpy>=0.35.0",
+  "sysml-style>=0.3.7",
+  "jupyter",
+  "pytest>=8.0",
+  "mypy>=1.0.0",
+  "pre-commit",
+  "mkdocs-material>=9.5",
+  "pygments-sysml @ git+https://github.com/mycr0ft/pygments-sysml.git@main",
+]
+
+[tool.hatch.envs.default.scripts]
+check = "sysml-style check sysml/models/*.sysml"
+format = "sysml-style format sysml/models/*.sysml"
+format-check = "sysml-style format --check sysml/models/*.sysml"
+analyze = "python -m {{ project_slug }}.examples.analyze_model"
+render = "python -m {{ project_slug }}.examples.render_diagrams"
+test = "pytest {args:tests}"
+typecheck = "mypy --install-types --non-interactive {args:src/{{ project_slug }} tests}"
+jupyter = "jupyter lab"
+docs = "mkdocs build"
+serve = "mkdocs serve"
+
+[tool.sysml-style]
+max_line_length = 120
+indent_size = 4
+ignore = []
+naming_convention = "{{ sysml_naming_convention }}"
+
+[tool.hatch.envs.types]
+extra-dependencies = [
+  "mypy>=1.0.0",
+]
+[tool.hatch.envs.types.scripts]
+check = "mypy --install-types --non-interactive {args:src/{{ project_slug }} tests}"
+
+[tool.coverage.run]
+source_pkgs = ["{{ project_slug }}", "tests"]
+branch = true
+parallel = true
+omit = [
+  "src/{{ project_slug }}/__about__.py",
+]
+
+[tool.coverage.paths]
+{{ project_slug }} = ["src/{{ project_slug }}", "*/{{ project_slug }}/src/{{ project_slug }}"]
+tests = ["tests", "*/{{ project_slug }}/tests"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
