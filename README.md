@@ -81,17 +81,15 @@ my_project/
 
 ## SysML in Jupyter: the %%sysml magic
 
-Generated projects include an IPython extension that adds a `%%sysml` cell
-magic to the ordinary Python kernel — write SysML v2 textual notation in
-notebook cells, backed by [sysmlpy](https://github.com/mycr0ft/sysmlpy).
-No JVM, no extra kernel install.
+Generated projects depend on `sysmlpy[jupyter]` — write SysML v2 textual
+notation directly in notebook cells via the `%%sysml` cell magic shipped
+in [sysmlpy](https://github.com/mycr0ft/sysmlpy) as
+`sysmlpy.ipython_magic` (no JVM, no extra kernel install).
 
 ```python
 # once per notebook:
-%load_ext my_project.sysml_magic
-```
+%load_ext sysmlpy.ipython_magic
 
-```python
 %%sysml
 package Vehicle {
     part def Engine {
@@ -104,16 +102,8 @@ package Vehicle {
 ```
 
 The parsed model accumulates across cells into a persistent `model` object
-(alias `_sysml`) usable from normal Python cells:
-
-```python
-model.find(name='Engine')          # query elements
-engine.attributes                  # typed navigation
-```
-
-Re-declaring a package merges at member granularity: elements with the same
-`name` + `sysml_type` replace prior definitions, everything else is kept —
-so you can iterate on one part in a single cell.
+(alias `_sysml`). Re-declaring a package merges at member granularity —
+re-declared elements replace prior definitions, siblings are preserved.
 
 Line magics (analogues of the OMG Pilot Implementation kernel commands):
 
@@ -124,12 +114,11 @@ Line magics (analogues of the OMG Pilot Implementation kernel commands):
 %sysml_viz NAME [--view V]    # PlantUML view (general|tree|package|action|interconnection)
 ```
 
-Cell options: `%%sysml --reset` (fresh model), `--file PATH` (parse from a
-file; use `-` as the cell body), `--show` (print the round-tripped model).
-
-Full command reference — including the complete magic set of the official
-OMG Pilot Implementation Jupyter kernel this feature draws from, and a
-compatibility table — is in [`docs/sysml-magics.md`]({{ repo_url }}/blob/main/%7B%7Bproject_slug%7D%7D/docs/sysml-magics.md).
+Cell options: `%%sysml --reset`, `--file PATH` (use `-` as the cell body),
+`--show` (print the round-tripped model). The full magic-command reference —
+the complete set of the official OMG Pilot Implementation Jupyter kernel and
+the mapping to this implementation — is documented in the sysmlpy repo's
+`CHANGELOG.md` (v0.91.0).
 
 ## Packaging models as .kpar
 
