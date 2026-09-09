@@ -9,6 +9,7 @@ A [Copier](https://copier.science) template that scaffolds a SysML v2 project wi
 - Jupyter notebook for model exploration
 - VS Code settings (SysIDE, PlantUML, Python)
 - Bundled SysML v2 standard library for IDE syntax highlighting
+- `.kpar` packaging — bundle your model into a standard KerML Project Archive and verify any `.kpar`
 
 ## Usage
 
@@ -59,6 +60,9 @@ my_project/
 ├── notebooks/model_exploration.ipynb
 ├── pyproject.toml
 ├── README.md
+├── scripts/
+│   ├── make_kpar.py            # Bundle sysml/models into a .kpar archive
+│   └── verify_kpar.py          # Validate any .kpar (structure, index, checksums)
 ├── src/my_project/
 │   ├── __about__.py
 │   ├── __init__.py
@@ -72,6 +76,37 @@ my_project/
 └── tests/
     └── test_model.py
 ```
+
+## Packaging models as .kpar
+
+Generated projects include a script that bundles `sysml/models/` into a
+[`.kpar` file](https://github.com/Systems-Modeling/SysML-v2-Release) — the
+standard KerML Project Archive (KerML spec clause 10) used for model
+interchange between SysML v2 tools (SysIDE, Sysand, etc.). A `.kpar` is a ZIP
+containing `.project.json` (name, version, description, usage), `.meta.json`
+(package index + SHA256 checksums), and the model files themselves.
+
+```bash
+cd my-project
+
+# Bundle sysml/models/ → dist/<name>-<version>.kpar
+python scripts/make_kpar.py
+
+# Explicit overrides (defaults come from pyproject.toml / existing .project.json)
+python scripts/make_kpar.py --name my_model --version 1.2.0 \
+    --description "My model" -o dist/my_model-1.2.0.kpar
+
+# Verify any .kpar — including OMG standard library archives (e.g. downloaded
+# from https://github.com/Systems-Modeling/SysML-v2-Release/releases)
+python scripts/verify_kpar.py sysml.library.kpar
+```
+
+`make_kpar.py` resolves project name/version from (in order): CLI flags,
+an existing `sysml/models/.project.json`, `pyproject.toml`, then the directory
+name. If your model directory already contains `.project.json` / `.meta.json`
+(as the standard library dirs do), they are preserved — checksums are always
+recomputed from the bundled files. Both scripts are stdlib-only (Python ≥3.11
+for `tomllib`; 3.10 works when no `pyproject.toml` fallback is needed).
 
 ## Migration from the cookiecutter template
 
