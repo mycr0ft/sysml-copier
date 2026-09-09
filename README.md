@@ -10,6 +10,7 @@ A [Copier](https://copier.science) template that scaffolds a SysML v2 project wi
 - VS Code settings (SysIDE, PlantUML, Python)
 - Bundled SysML v2 standard library for IDE syntax highlighting
 - `.kpar` packaging — bundle your model into a standard KerML Project Archive and verify any `.kpar`
+- `%%sysml` Jupyter cell magic — write SysML v2 directly in notebooks, backed by sysmlpy
 
 ## Usage
 
@@ -66,6 +67,7 @@ my_project/
 ├── src/my_project/
 │   ├── __about__.py
 │   ├── __init__.py
+│   ├── sysml_magic.py         # %%sysml Jupyter cell magic
 │   └── examples/
 │       ├── analyze_model.py
 │       ├── navigate_model.py
@@ -76,6 +78,58 @@ my_project/
 └── tests/
     └── test_model.py
 ```
+
+## SysML in Jupyter: the %%sysml magic
+
+Generated projects include an IPython extension that adds a `%%sysml` cell
+magic to the ordinary Python kernel — write SysML v2 textual notation in
+notebook cells, backed by [sysmlpy](https://github.com/mycr0ft/sysmlpy).
+No JVM, no extra kernel install.
+
+```python
+# once per notebook:
+%load_ext my_project.sysml_magic
+```
+
+```python
+%%sysml
+package Vehicle {
+    part def Engine {
+        attribute fuelRate : Real;
+    }
+    part def Vehicle {
+        part engine : Vehicle::Engine;
+    }
+}
+```
+
+The parsed model accumulates across cells into a persistent `model` object
+(alias `_sysml`) usable from normal Python cells:
+
+```python
+model.find(name='Engine')          # query elements
+engine.attributes                  # typed navigation
+```
+
+Re-declaring a package merges at member granularity: elements with the same
+`name` + `sysml_type` replace prior definitions, everything else is kept —
+so you can iterate on one part in a single cell.
+
+Line magics (analogues of the OMG Pilot Implementation kernel commands):
+
+```python
+%sysml_reset                  # discard the session model
+%sysml_list [NAME]            # list packages, or find elements by exact name
+%sysml_show NAME [--json]     # print the AST rooted at a named element
+%sysml_viz NAME [--view V]    # PlantUML view (general|tree|package|action|interconnection)
+```
+
+Cell options: `%%sysml --reset` (fresh model), `--file PATH` (parse from a
+file; use `-` as the cell body), `--show` (print the round-tripped model).
+
+Full command reference — including the complete magic set of the official
+OMG Pilot Implementation Jupyter kernel this feature draws from, and a
+compatibility table — is in [`docs/sysml-magics.md`]({{ repo_url }}/blob/main/%7B%7Bproject_slug%7D%7D/docs/sysml-magics.md).
 
 ## Packaging models as .kpar
 
